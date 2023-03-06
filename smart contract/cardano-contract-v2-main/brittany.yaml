@@ -1,0 +1,7 @@
+conf_layout:
+  lconfig_columnAlignMode:
+    tag: ColumnAlignModeDisabled
+  lconfig_indentPolicy: IndentPolicyLeft
+  lconfig_cols: 120
+conf_preprocessor:
+  ppconf_CPPMode: CPPModeWarn

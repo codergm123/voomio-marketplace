@@ -1,0 +1,112 @@
+cabal-version: 2.4
+name:          voomio-bulk-purchase
+version:       1.0.0.0
+author:        Richard Wallace
+maintainer:    rwallace@canonicalllc.com
+license:       Apache-2.0
+license-files: LICENSE
+
+flag defer-plugin-errors
+  description:
+    Defer errors from the plugin, useful for things like Haddock that can't handle it.
+
+  default:     False
+  manual:      True
+
+common lang
+  default-language: Haskell2010
+  default-extensions:
+    LambdaCase
+    ViewPatterns
+    GeneralizedNewtypeDeriving
+    OverloadedStrings
+    StandaloneDeriving
+  ghc-options:
+    -Wall -Wnoncanonical-monad-instances -Wincomplete-uni-patterns
+    -Wincomplete-record-updates -Wredundant-constraints -Widentities
+    -rtsopts -fobject-code -fno-ignore-interface-pragmas
+    -fno-omit-interface-pragmas -Wno-unrecognised-pragmas -Werror
+
+  -- See Plutus Tx readme
+  if flag(defer-plugin-errors)
+    ghc-options: -fplugin-opt PlutusTx.Plugin:defer-errors
+
+library
+  import:          lang
+  exposed-modules:
+    Canonical.Voomio.BulkPurchase
+    Canonical.Shared
+
+  build-depends:
+    , aeson
+    , base               >=4.9 && <5
+    , bytestring
+    , cardano-api
+    , containers
+    , filepath
+    , plutus-ledger-api
+    , plutus-tx
+    , plutus-tx-plugin
+    , serialise
+    , plutonomy
+
+  hs-source-dirs:  src
+
+executable create-smart-contract
+  import:         lang
+  hs-source-dirs: app
+  main-is:        Main.hs
+  ghc-options:    -Wall -Werror -threaded -rtsopts -with-rtsopts=-T
+  build-depends:
+    , base
+    , bytestring
+    , cardano-api
+    , cardano-ledger-alonzo
+    , voomio-bulk-purchase
+    , optparse-applicative
+    , plutus-ledger-api
+
+test-suite integration-tests
+  import:         lang
+  type: exitcode-stdio-1.0
+  hs-source-dirs: integration-tests
+  main-is:        Main.hs
+  other-modules:  AlwaysSucceed
+  ghc-options:    -Wall -Werror -threaded -rtsopts -with-rtsopts=-T
+  build-depends:
+    , aeson
+    , base
+    , bytestring
+    , cardano-api
+    , cardano-transaction
+    , containers
+    , directory
+    , envparse
+    , extra
+    , filepath
+    , hspec
+    , voomio-bulk-purchase
+    , managed
+    , mtl
+    , plutus-core
+    , plutus-ledger-api
+    , plutus-tx
+    , plutus-tx-plugin
+    , process
+    , serialise
+    , temporary
+    , text
+    , time
+    , test-mint-scripts
+
+test-suite unit-tests
+  import:         lang
+  type: exitcode-stdio-1.0
+  hs-source-dirs:     unit-tests
+  main-is:            Main.hs
+  ghc-options:        -threaded -rtsopts "-with-rtsopts=-T"
+  build-depends: base
+               , voomio-bulk-purchase
+               , hspec
+               , plutus-tx
+               , plutus-ledger-api
